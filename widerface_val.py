@@ -25,6 +25,9 @@ from data import (WIDERFace_ROOT, WIDERFaceAnnotationTransform,
                   WIDERFaceDetection)
 from face_ssd import build_ssd
 
+import warnings
+warnings.filterwarnings("ignore")
+
 plt.switch_backend('agg')
 
 parser = argparse.ArgumentParser(description='DSFD: Dual Shot Face Detector')
