@@ -188,7 +188,7 @@ class SSD(nn.Module):
     
     def init_priors(self ,cfg , min_size=cfg['min_sizes'], max_size=cfg['max_sizes']):
         priorbox = PriorBox(cfg , min_size, max_size)
-        prior = Variable( priorbox.forward() , volatile=True)
+        prior = Variable( priorbox.forward() )
         return prior
         
     def forward(self, x):
@@ -333,20 +333,21 @@ class SSD(nn.Module):
             self.cfg['feature_maps'] = featuremap_size
             self.cfg['min_dim'] = image_size
             self.priors = self.init_priors(self.cfg)
-            if refine:
-                output = self.detect(
-                  face_loc.view(face_loc.size(0), -1, 4),         # loc preds
-                  self.softmax(face_conf.view(face_conf.size(0), -1, self.num_classes)), # conf preds
-                  self.priors.type(type(x.data)),                  # default boxes
-                  arm_loc.view(arm_loc.size(0), -1, 4),
-                  self.softmax(arm_conf.view(arm_conf.size(0), -1, self.num_classes)),
-                )
-            else:
-                output = self.detect(
-                  face_loc.view(face_loc.size(0), -1, 4),         # loc preds
-                  self.softmax(face_conf.view(face_conf.size(0), -1, self.num_classes)), # conf preds
-                  self.priors.type(type(x.data))                  # default boxes
-                )
+            with torch.no_grad():
+                if refine:
+                    output = self.detect(
+                      face_loc.view(face_loc.size(0), -1, 4),         # loc preds
+                      self.softmax(face_conf.view(face_conf.size(0), -1, self.num_classes)), # conf preds
+                      self.priors.type(type(x.data)),                  # default boxes
+                      arm_loc.view(arm_loc.size(0), -1, 4),
+                      self.softmax(arm_conf.view(arm_conf.size(0), -1, self.num_classes)),
+                    )
+                else:
+                    output = self.detect(
+                      face_loc.view(face_loc.size(0), -1, 4),         # loc preds
+                      self.softmax(face_conf.view(face_conf.size(0), -1, self.num_classes)), # conf preds
+                      self.priors.type(type(x.data))                  # default boxes
+                    )
         else:
             self.cfg['feature_maps'] = featuremap_size
             self.cfg['min_dim'] = image_size
