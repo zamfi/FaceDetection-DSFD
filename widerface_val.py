@@ -25,8 +25,8 @@ from data import (WIDERFace_ROOT, WIDERFaceAnnotationTransform,
                   WIDERFaceDetection)
 from face_ssd import build_ssd
 
-import warnings
-warnings.filterwarnings("ignore")
+# import warnings
+# warnings.filterwarnings("ignore")
 
 plt.switch_backend('agg')
 
@@ -61,10 +61,11 @@ def detect_face(image, shrink):
 
     x = torch.from_numpy(x).permute(2, 0, 1)
     x = x.unsqueeze(0)
-    x = Variable(x.cuda(), volatile=True)
+    x = Variable(x.cuda())
 
     #net.priorbox = PriorBoxLayer(width,height)
-    y = net(x)
+    with torch.no_grad():
+      y = net(x)
     detections = y.data
     scale = torch.Tensor([width, height, width, height])
 
